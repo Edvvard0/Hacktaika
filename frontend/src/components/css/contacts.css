@@ -229,3 +229,24 @@
         right: 8px;
     }
 }
+
+/* Центрируем 3 карточки в 5-колоночной сетке, размеры карточек не меняем */
+@media (min-width: 769px) {
+  .contacts {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr); /* было 4 — делаем 5 */
+    gap: 16px;
+    margin-top: 32px;
+    justify-items: stretch; /* карточки занимают свой трек как раньше */
+  }
+
+  /* Пустая колонка слева и справа — для симметрии и центра */
+  .contacts::before,
+  .contacts::after {
+    content: "";
+    display: block;       /* становится grid-элементом */
+    height: 0;            /* не влияет на высоту */
+    visibility: hidden;   /* невидимо и некликабельно */
+    pointer-events: none;
+  }
+}
