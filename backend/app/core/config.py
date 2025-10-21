@@ -26,6 +26,8 @@ class Settings(BaseSettings):
     PROJECT_NAME: str = "ХакТайка API"
     PROJECT_VERSION: str = "1.0.0"
 
+    SECRET_KEY: str
+
     class Config:
         env_file = str(Path(__file__).parent.parent.parent.parent / ".env")  # root .env
         env_file_encoding = "utf-8"
