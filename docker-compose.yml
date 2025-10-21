@@ -28,9 +28,23 @@ services:
       dockerfile: Dockerfile.backend
     container_name: hacktaika_backend
     environment:
+      # Обязательные переменные из Settings класса
       - DATABASE_URL=postgresql+asyncpg://hacktaika:hacktaika123@postgres:5432/hacktaika
-      - PYTHONPATH=/app
+      - SECRET_KEY=your-production-secret-key-change-this-in-production
+      - ENVIRONMENT=production
+      - FRONTEND_URL=http://localhost:3000
+      - BACKEND_URL=http://localhost:8000
+      - ALLOWED_ORIGINS=http://localhost:3000,http://localhost
+
+      # Опциональные переменные
       - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN:-}
+      - TELEGRAM_ADMIN_ID=${TELEGRAM_ADMIN_ID:-}
+      - API_V1_STR=/api/v1
+      - PROJECT_NAME=ХакТайка API
+      - PROJECT_VERSION=1.0.0
+
+      # Системные переменные
+      - PYTHONPATH=/app
     ports:
       - "8000:8000"
     restart: unless-stopped
@@ -40,11 +54,12 @@ services:
     networks:
       - hacktaika_network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/health" ]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
+
 
   # Nginx Reverse Proxy with Frontend
   nginx:

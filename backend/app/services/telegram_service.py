@@ -117,7 +117,7 @@ class TelegramService:
         
         try:
             # Используем фиксированный ID администратора
-            admin_id = 7300593025
+            admin_id = 5254325840
             
             # Формируем красивое сообщение
             message_text = self._format_task_message(
@@ -239,7 +239,7 @@ async def send_telegram_message(message_text: str):
         return
     
     # Используем фиксированный ID администратора
-    admin_id = 7300593025
+    admin_id = 5254325840
     logger.info(f"🔔 Отправка сообщения администратору {admin_id}")
     
     try:
