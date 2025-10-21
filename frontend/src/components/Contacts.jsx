@@ -1,14 +1,12 @@
 import { forwardRef, useState } from "react";
 import ReactDOM from "react-dom";
 import { useTranslation } from "react-i18next";
-import { services } from "../data/services";
 import ClientForm from "./ClientForm";
 import "./css/contacts.css";
-import Modal from "./ModalForm";
 
 export const Contacts = forwardRef((props, ref) => {
   const { t } = useTranslation();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isOrderClientFormOpen, setIsOrderClientFormOpen] = useState(false);
   const [isClientFormOpen, setIsClientFormOpen] = useState(false);
 
   return (
@@ -22,7 +20,7 @@ export const Contacts = forwardRef((props, ref) => {
       />
       <div className="contacts">
         <div
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsOrderClientFormOpen(true)}
           className="contacts-item order"
         >
           <div className="contact-text">
@@ -35,6 +33,7 @@ export const Contacts = forwardRef((props, ref) => {
             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
+
         <div
           onClick={() => setIsClientFormOpen(true)}
           className="contacts-item brief"
@@ -49,6 +48,7 @@ export const Contacts = forwardRef((props, ref) => {
             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </div>
+
         <a
           href="mailto:info@hacktaika.com"
           rel="noreferrer"
@@ -62,6 +62,7 @@ export const Contacts = forwardRef((props, ref) => {
             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
         </a>
+
         <a
           href="https://t.me/dislov_freelance"
           target="_blank"
@@ -76,19 +77,16 @@ export const Contacts = forwardRef((props, ref) => {
           </svg>
         </a>
       </div>
-      {isModalOpen &&
+
+      {isOrderClientFormOpen &&
         ReactDOM.createPortal(
-          <Modal
-            onClose={() => setIsModalOpen(false)}
-            selectedServiceId={services[0]["id"]}
-          />,
+          <ClientForm onClose={() => setIsOrderClientFormOpen(false)} />,
           document.body
         )}
+
       {isClientFormOpen &&
         ReactDOM.createPortal(
-          <ClientForm
-            onClose={() => setIsClientFormOpen(false)}
-          />,
+          <ClientForm onClose={() => setIsClientFormOpen(false)} />,
           document.body
         )}
     </div>

@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import './css/serviceModal.css';
-import Modal from './ModalForm';
+import ClientForm from './ClientForm';
 
 const ServiceModal = React.memo(function ServiceModal({ service, onClose }) {
   const { t } = useTranslation();
@@ -11,19 +11,16 @@ const ServiceModal = React.memo(function ServiceModal({ service, onClose }) {
   const [activeTab, setActiveTab] = useState('overview');
 
   useEffect(() => {
-    // Сохраняем текущую позицию скролла
     const scrollY = window.scrollY;
     document.body.style.position = 'fixed';
     document.body.style.top = `-${scrollY}px`;
     document.body.style.width = '100%';
     document.body.style.overflow = 'hidden';
     document.body.classList.add('modal-open');
-    
-    // Анимация появления
+
     setTimeout(() => setIsVisible(true), 10);
-    
+
     return () => {
-      // Восстанавливаем скролл и позицию
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
@@ -54,8 +51,7 @@ const ServiceModal = React.memo(function ServiceModal({ service, onClose }) {
         <button className="service-modal-close" onClick={handleClose}>
           <span>&times;</span>
         </button>
-        
-        {/* Заголовок с иконкой и градиентом */}
+
         <div className="service-modal-header">
           <div className="service-modal-icon-container">
             <div className="service-modal-icon">
@@ -72,7 +68,6 @@ const ServiceModal = React.memo(function ServiceModal({ service, onClose }) {
           </div>
         </div>
 
-        {/* Навигация по вкладкам */}
         <div className="service-modal-tabs">
           {tabs.map((tab) => (
             <button
@@ -86,7 +81,6 @@ const ServiceModal = React.memo(function ServiceModal({ service, onClose }) {
           ))}
         </div>
 
-        {/* Контент вкладок */}
         <div className="service-modal-body">
           {activeTab === 'overview' && (
             <div className="service-modal-tab-content">
@@ -138,7 +132,6 @@ const ServiceModal = React.memo(function ServiceModal({ service, onClose }) {
               </div>
             </div>
           )}
-
         </div>
 
         <div className="service-modal-footer">
@@ -155,10 +148,7 @@ const ServiceModal = React.memo(function ServiceModal({ service, onClose }) {
         </div>
 
         {isOrderModalOpen && ReactDOM.createPortal(
-          <Modal 
-            onClose={() => setIsOrderModalOpen(false)} 
-            selectedServiceId={service.id}
-          />,
+          <ClientForm onClose={() => setIsOrderModalOpen(false)} />,
           document.body
         )}
       </div>
