@@ -1,230 +1,168 @@
-# ХакТайка Website
+<div align="center">
 
-Корпоративный сайт digital агентства ХакТайка с React frontend и FastAPI backend.
+# ХакТайка
+
+**Сайт digital-агентства: многоязычный лендинг на React, заявки через FastAPI и мгновенные уведомления в Telegram**
+
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
+![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+![Nginx](https://img.shields.io/badge/Nginx-009639?style=for-the-badge&logo=nginx&logoColor=white)
+
+</div>
+
+<!-- TODO: скриншот главной страницы -->
+
+## 📖 О проекте
+
+Корпоративный сайт digital-агентства «ХакТайка»: витрина услуг и портфолио, а также форма заявки, через которую клиент описывает задачу. Заявка сохраняется в PostgreSQL, а администраторам сразу уходит уведомление в Telegram — менеджер не теряет лиды и не проверяет почту вручную.
+
+## ✨ Возможности
+
+- **Лендинг** — Hero, форма заявки, услуги, отзывы, портфолио, контакты, футер; секции появляются с анимацией (GSAP).
+- **Две локали** — русский и английский (`i18next`, переводы в `frontend/public/locales`), язык определяется по браузеру.
+- **Каталог услуг** — веб-разработка, Telegram-боты и автоматизация, UI/UX и графический дизайн, хостинг и поддержка, маркетинг и реклама, мобильная разработка.
+- **Портфолио** — страницы проектов (`/portfolio/:id`) с обложками, скриншотами и видео.
+- **Заявки** — клиент и заявка сохраняются в БД, дубликаты клиентов ищутся по email или телефону.
+- **Telegram-бот** — рассылка уведомлений о новых заявках; команды `/start` и `/help`; доступ определяется таблицей администраторов.
+- **Юридические страницы и cookie-баннер** — политика конфиденциальности, условия использования, согласие на cookie.
+- **SEO** — `SEOHelmet`, `sitemap.xml`, `robots.txt`, `manifest.json`.
+- **Продакшен-обвязка** — Nginx с HTTPS, заголовками безопасности и reverse proxy на API.
+
+## 🧱 Стек
+
+| Технология | Роль |
+|---|---|
+| Python 3.11, FastAPI, Uvicorn | REST API |
+| SQLAlchemy 2 (async) + asyncpg | работа с PostgreSQL |
+| Alembic | миграции (конфигурация в `backend/`) |
+| Pydantic / pydantic-settings | схемы и конфигурация из `.env` |
+| aiogram 3 | Telegram-бот (long polling) |
+| React 19, react-router-dom 7 | клиентская часть |
+| GSAP, Swiper, Recharts | анимации, слайдеры, графики |
+| i18next | локализация RU / EN |
+| PostgreSQL 14 | хранилище |
+| Docker Compose, Nginx | запуск и reverse proxy |
+
+## 🗂 Структура проекта
+
+```text
+Hacktaika/
+├── backend/
+│   ├── app/
+│   │   ├── api/v1/        # роуты: clients, admins, blog
+│   │   ├── core/          # настройки (pydantic-settings)
+│   │   ├── db/            # движок, сессия, Base
+│   │   ├── models/        # Client, Task, Service, Admin
+│   │   ├── schemas/       # Pydantic-схемы
+│   │   ├── services/      # telegram_service (бот + уведомления)
+│   │   └── main.py        # точка входа FastAPI
+│   ├── alembic/ migrations/   # конфигурация и миграции Alembic
+│   └── create_blog_table.sql  # init-скрипт для таблицы blog_submissions
+├── frontend/
+│   ├── public/            # статика, локали, медиа портфолио
+│   └── src/               # компоненты, страницы, данные, API-клиент
+├── nginx/                 # Dockerfile, nginx.conf, conf.d/default.conf
+├── docker-compose.yml     # postgres + backend + nginx
+├── Dockerfile.backend / Dockerfile.frontend
+└── requirements.txt
+```
 
 ## 🚀 Быстрый старт
 
-### Требования
+### Через Docker Compose
 
-- Docker и Docker Compose
-- Node.js 16+ (для локальной разработки frontend)
-- Python 3.11+ (для локальной разработки backend)
-
-### Запуск через Docker
+`docker-compose.yml` поднимает три сервиса: `postgres` (5432), `backend` (8000) и `nginx` (80/443). Nginx раздаёт готовую сборку из `frontend/build`, поэтому фронтенд нужно собрать заранее.
 
 ```bash
-# Клонировать репозиторий
-git clone <repository-url>
-cd hacktaika-website
+git clone https://github.com/Edvvard0/Hacktaika.git
+cd Hacktaika
 
-# Скопировать переменные окружения
+# 1. Сборка фронтенда (Node.js 20, yarn)
+cd frontend
+yarn install --frozen-lockfile
+yarn build
+cd ..
+
+# 2. Переменные окружения (compose читает TELEGRAM_BOT_TOKEN и TELEGRAM_ADMIN_ID)
 cp .env.example .env
 
-# Запустить все сервисы
-docker-compose up --build
+# 3. Запуск
+docker compose up --build -d
+docker compose logs -f backend
 ```
 
-Сайт будет доступен по адресу:
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:8000
-- API документация: http://localhost:8000/docs
-
-### Проверка работы
-
-```bash
-# Проверить статус всех сервисов
-docker-compose ps
-
-# Проверить логи
-docker-compose logs -f
-```
+> Конфигурация Nginx рассчитана на HTTPS-сертификаты Let's Encrypt, смонтированные из `/etc/letsencrypt` хоста. Для запуска на локальной машине используйте режим разработки ниже.
 
 ### Локальная разработка
 
-#### Backend (FastAPI)
+**Backend** (Python 3.11+):
 
 ```bash
-# Перейти в папку backend
+docker compose up -d postgres        # БД из compose
+
 cd backend
-
-# Создать виртуальное окружение
 python -m venv venv
-source venv/bin/activate  # Linux/Mac
-# или
-venv\Scripts\activate     # Windows
-
-# Установить зависимости
+source venv/bin/activate             # Windows: venv\Scripts\activate
 pip install -r ../requirements.txt
 
-# Запустить сервер разработки
+# .env в корне репозитория: DATABASE_URL, SECRET_KEY (см. «Конфигурация»)
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-#### Frontend (React)
+Таблицы создаются автоматически при старте приложения. Документация API: `http://localhost:8000/docs`.
+
+**Frontend:**
 
 ```bash
-# Перейти в папку frontend
 cd frontend
-
-# Установить зависимости
-npm install
-
-# Запустить сервер разработки
-npm start
+yarn install
+REACT_APP_API_URL=http://localhost:8000 yarn start    # http://localhost:3000
 ```
 
-## 📁 Структура проекта
+## ⚙️ Конфигурация
 
-```
-hacktaika-website/
-├── backend/                 # FastAPI backend
-│   ├── app/
-│   │   ├── api/            # API endpoints
-│   │   ├── core/           # Конфигурация
-│   │   ├── db/             # База данных
-│   │   ├── models/         # SQLAlchemy модели
-│   │   ├── schemas/        # Pydantic схемы
-│   │   ├── services/       # Бизнес-логика
-│   │   └── main.py         # Точка входа
-│   └── migrations/         # Alembic миграции
-├── frontend/               # React frontend
-│   ├── public/
-│   ├── src/
-│   │   ├── components/     # React компоненты
-│   │   ├── data/          # Статические данные
-│   │   └── api/           # API клиент
-│   └── package.json
-├── docker-compose.yml      # Docker Compose для разработки
-├── Dockerfile             # Dockerfile для разработки
-├── requirements.txt       # Python зависимости
-└── .env                   # Переменные окружения
-```
+Backend читает `.env` из корня репозитория (шаблон — `.env.example`).
 
-## 🛠 Разработка
+| Переменная | Назначение |
+|---|---|
+| `DATABASE_URL` | строка подключения к БД (`postgresql+asyncpg://...`), обязательна |
+| `SECRET_KEY` | секретный ключ приложения, обязателен |
+| `ENVIRONMENT` | `development` / `production` |
+| `ALLOWED_ORIGINS` | список origin для CORS через запятую |
+| `FRONTEND_URL`, `BACKEND_URL` | публичные адреса фронтенда и API |
+| `TELEGRAM_BOT_TOKEN` | токен бота; без него бот не запускается |
+| `TELEGRAM_ADMIN_ID` | Telegram ID администратора (необязательно) |
+| `API_V1_STR`, `PROJECT_NAME`, `PROJECT_VERSION` | параметры API |
+| `REACT_APP_API_URL` | адрес API для фронтенда (по умолчанию `http://localhost:8000`) |
+| `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB` | параметры БД из `.env.example` |
 
-### Переменные окружения
+> Не коммитьте реальные значения: `.env` добавлен в `.gitignore`.
 
-Основные переменные в `.env`:
+## 🔌 API / Команды
 
-```env
-# Database
-DATABASE_URL=postgresql+asyncpg://postgres:mefole_dev_password@localhost:5432/mefole_dev
+<details>
+<summary>REST API (префикс <code>/api/v1</code>, Swagger — <code>/docs</code>)</summary>
 
-# Backend
-SECRET_KEY=dev_secret_key_change_in_production
-ALLOWED_ORIGINS=http://localhost:3000
+| Метод | Путь | Описание |
+|---|---|---|
+| `GET` | `/clients/services` | список услуг |
+| `GET` | `/clients/tasks` | список заявок |
+| `POST` | `/clients/tasks` | создать заявку клиента + уведомление в Telegram |
+| `GET` / `POST` | `/admins/` | список / добавление администраторов бота |
+| `PATCH` | `/admins/{admin_id}/toggle` | включить / выключить администратора |
+| `POST` | `/blog/blog-form` | подробная форма-бриф: сохранение в `blog_submissions` + уведомление |
+| `GET` | `/healthz` (без префикса) | проверка доступности и БД |
 
-# Frontend
-REACT_APP_API_URL=http://localhost:8000
+</details>
 
-# Telegram Bot (optional)
-TELEGRAM_BOT_TOKEN=
-```
+**Telegram-бот:** `/start` — приветствие и проверка доступа, `/help` — справка.
 
-### API Endpoints
+## 👤 Автор
 
-- `GET /api/v1/clients` - Получить список клиентов
-- `POST /api/v1/clients` - Создать заявку клиента
-- `GET /api/v1/admins` - Админ панель
-- `GET /healthz` - Health check
+**Эдвард Осипчук** — Python backend-разработчик
 
-### База данных
-
-Проект использует PostgreSQL с SQLAlchemy и Alembic для миграций.
-
-```bash
-# Создать миграцию
-cd backend
-alembic revision --autogenerate -m "Description"
-
-# Применить миграции
-alembic upgrade head
-```
-
-## 🧪 Тестирование
-
-```bash
-# Backend тесты
-cd backend
-pytest
-
-# Frontend тесты
-cd frontend
-npm test
-```
-
-## 📦 Сборка
-
-```bash
-# Сборка frontend для продакшена
-cd frontend
-npm run build
-
-# Сборка Docker образов
-docker-compose build
-```
-
-## 🔧 Полезные команды
-
-### NPM команды
-
-```bash
-# Запустить все сервисы
-npm run dev
-
-# Запустить только базу данных
-npm run dev:db
-
-# Запустить только backend
-npm run dev:backend
-
-# Запустить только frontend
-npm run dev:frontend
-
-# Остановить все сервисы
-npm run stop
-
-# Очистить все данные
-npm run clean
-```
-
-### Docker команды
-
-```bash
-# Просмотр логов всех сервисов
-npm run logs
-
-# Просмотр логов backend
-npm run logs:backend
-
-# Просмотр логов frontend
-npm run logs:frontend
-
-# Перезапуск сервисов
-npm run restart
-
-# Сборка Docker образов
-npm run build:docker
-```
-
-### Локальная разработка (без Docker)
-
-```bash
-# Frontend
-npm run dev:local:frontend
-
-# Backend
-npm run dev:local:backend
-```
-
-## 📞 Поддержка
-
-- **Email**: info@hacktaika.com
-- **Сайт**: https://hacktaika.com
-
-## 🚀 Технологии
-
-- **Frontend**: React 19, GSAP, Swiper, i18next
-- **Backend**: FastAPI, SQLAlchemy, Alembic, PostgreSQL
-- **DevOps**: Docker, Docker Compose
-- **Дополнительно**: Telegram Bot API
+[![GitHub](https://img.shields.io/badge/GitHub-Edvvard0-181717?style=flat&logo=github)](https://github.com/Edvvard0)
+[![Telegram](https://img.shields.io/badge/Telegram-Edward0076-26A5E4?style=flat&logo=telegram&logoColor=white)](https://t.me/Edward0076)
